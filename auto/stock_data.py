@@ -28,6 +28,7 @@ def get_stock_data(engine):
             
             #akshare 日线(不复权)
             h_data = ak.stock_zh_a_hist(symbol=symbolCode, period="daily", start_date=pb.param(name='update_data_start_date'), end_date=pb.param(name='update_data_end_date')) #不复权数据
+            print(h_data)
             akshare_stock_data_day_bfq = pd.DataFrame({'date': h_data['日期'], 'symbol': symbolCode, 'stockName': stockName, 'open': h_data['开盘'], 'close':h_data['收盘'], 'high': h_data['最高'], 'low': h_data['最低'], 'volume': h_data['成交量'], 'tradingAmount': h_data['成交额'], 'swing': h_data['振幅'], 'changePercent': h_data['涨跌幅'], 'changeAmount': h_data['涨跌额'], 'turnoverRate': h_data['换手率'] })
             akshare_stock_data_day_bfq.to_sql(name="basic_stock_history_day_bfq_akshare", con=conn, index=False ,if_exists='append')
             conn.commit()
@@ -99,6 +100,7 @@ def get_stock_data(engine):
             
         except Exception as error:
             print(symbolCode, stockName, "数据采集异常", error)
+            print(error)
         else:
             print(symbolCode, stockName,'采集完成')
 

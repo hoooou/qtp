@@ -1,29 +1,28 @@
-import configparser
  
-# ´´½¨ConfigParser¶ÔÏó
+# åˆ›å»ºConfigParserå¯¹è±¡
+import configparser
+config =configparser.ConfigParser()
+#é…ç½®æ–‡ä»¶è·¯å¾„ï¼š
+path = "/Users/xk/python_project/qtp/auto/config.ini"
+
+#åˆ›å»ºConfigParseræ¨¡å—
 config = configparser.ConfigParser()
 
-#ÅäÖÃÎÄ¼şÂ·¾¶£º
-path = "C:/Users/24313/Documents/GitHub/qtp/test/config.ini"
-
-#´´½¨ConfigParserÄ£¿é
-config = configparser.ConfigParser()
-
-#¶ÁÈ¡ÎÄ¼ş
+#è¯»å–æ–‡ä»¶
 config.read(path, encoding="utf-8")
 
-#»ñÈ¡ËùÓĞµÄsection
+#è·å–æ‰€æœ‰çš„section
 sections = config.sections()
 print(sections)
 
-# »ñÈ¡ÅäÖÃÏîµÄÖµ
+# è·å–é…ç½®é¡¹çš„å€¼
 value = config.get('mailinfo', 'name')
 
 print(value)
 
-# ¸üĞÂÅäÖÃÏîµÄÖµ
+# æ›´æ–°é…ç½®é¡¹çš„å€¼
 config.set('mysqldb', 'sql_host', 'localhost')
 
-# Ğ´Èëµ½ÅäÖÃÎÄ¼ş
+# å†™å…¥åˆ°é…ç½®æ–‡ä»¶
 with open(path, 'w') as configfile:
     config.write(configfile)

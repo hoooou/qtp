@@ -1,4 +1,4 @@
-
+*.pyc
 .vs/qtp/FileContentIndex/bfda9b3d-8d17-4b9f-98ab-1aac0848576e.vsidx
 .vs/qtp/FileContentIndex/b94e9fb1-4fc2-4696-9478-a7716f2583e6.vsidx
 .vs/qtp/FileContentIndex/248c17d9-4086-4fc9-a0a9-6e4c31b50bfb.vsidx
@@ -19,3 +19,12 @@
 .vs/qtp/FileContentIndex/4fcee7a4-5cc9-4744-9432-fa19339469ca.vsidx
 .vs/qtp/FileContentIndex/6ca2aadc-4c14-42e7-b58a-1e1eded34e9a.vsidx
 .vs/slnx.sqlite
+__pycache__
+auto/__pycache__/clear_data.cpython-311.pyc
+auto/__pycache__/parameter.cpython-311.pyc
+auto/__pycache__/stock_code.cpython-311.pyc
+auto/__pycache__/stock_data.cpython-311.pyc
+auto/__pycache__/trade_date.cpython-311.pyc
+strategy/__pycache__/strategy_chart.cpython-311.pyc
+strategy/__pycache__/strategy_content.cpython-311.pyc
+strategy/__pycache__/strategy_execute.cpython-311.pyc

@@ -12,11 +12,11 @@ from indicator.indicator_talib import calculate_indicator
 def create_strategy():
     
     # 定义全局参数 "stock_code"（股票代码）
-    pb.param(name='stock_code', value='600000') 
+    pb.param(name='stock_code', value='002731') 
     # 定义全局参数 "start_date" 开始日期
-    pb.param(name='start_date', value='20210101') 
+    pb.param(name='start_date', value='20180201') 
     # 定义全局参数 "end_date" 结束日期
-    pb.param(name='end_date', value='20230201') 
+    pb.param(name='end_date', value='20241101') 
     
     # 定义全局参数 "percent"（持仓百分比） 1代表100% 0.25代表25%
     pb.param(name='percent', value=0.25)

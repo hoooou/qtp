@@ -68,6 +68,8 @@ def get_init_parameters():
         pb.param(name='backtest_symbol', value=backtest_symbol)
         pb.param(name='backtest_start_date', value=backtest_start_date)
         pb.param(name='backtest_end_date', value=backtest_end_date)
+        pb.param(name='update_data_start_date', value=backtest_start_date)
+        pb.param(name='update_data_end_date', value=backtest_end_date)
         pb.param(name='initial_cash', value=initial_cash)
         pb.param(name='percent', value=percent)
         pb.param(name='stop_loss_pct', value=stop_loss_pct)
