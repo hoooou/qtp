@@ -94,13 +94,13 @@ def create_KLine_Chart(data,result) -> Kline:
                 opts.DataZoomOpts(
                     is_show=False,
                     type_="inside",
-                    xaxis_index=[0, 1],
+                    xaxis_index=[0, 1,2],
                     range_start=0,
                     range_end=100,
                     ),
                 opts.DataZoomOpts(
                     is_show=True,
-                    xaxis_index=[0, 1],
+                    xaxis_index=[0, 1,2],
                     type_="slider",
                     pos_top="85%",
                     range_start=0,
@@ -108,7 +108,7 @@ def create_KLine_Chart(data,result) -> Kline:
                 ),
                 opts.DataZoomOpts(
                     is_show=True,
-                    xaxis_index=[0, 1],
+                    xaxis_index=[0, 1,2],
                     type_="slider",
                     pos_top="85%",
                     range_start=0,
@@ -152,7 +152,7 @@ def create_MFI_Chart(data,result) -> Line:
     xdf=data[['date']]
     xdf.index=pd.to_datetime(xdf.date)
     ydf_dif=data[['MFI']]
-        
+
     line = (
         Line()
         .add_xaxis(xdf.index.strftime('%Y%m%d').tolist())
@@ -177,7 +177,8 @@ def create_strategy_bar(data,result) -> Bar:
 
     buy_points = {"周二": 0, "周三": 100}
 
-    bar = Bar(init_opts=opts.InitOpts(theme=ThemeType.DARK))
+    bar = Bar(init_opts=opts.InitOpts(theme=ThemeType.DARK, width="100%", height="300px"))
+
     bar.add_xaxis(xdf.index.strftime('%Y%m%d').tolist())
     bar.add_yaxis(
             "收益(Profit & Loss)",
@@ -307,43 +308,102 @@ def create_strategy_trades(result) -> Table:
     )
     return table
 
+# 图表聚合
 def create_strategy_charts(df,result):
     grid_chart = Grid(
-        init_opts=opts.InitOpts(
-            width="100%",
-            height="1000px",
-            animation_opts=opts.AnimationOpts(animation=False),
-        )
+    init_opts=opts.InitOpts(
+        width="100%",
+        height="1000px",
+        animation_opts=opts.AnimationOpts(animation=False),
     )
+)
+    # 添加K线图表
+    kline_chart = create_KLine_Chart(df, result)
+    kline_chart.set_global_opts(
+        datazoom_opts=[
+            opts.DataZoomOpts(
+                is_show=True,
+                type_="inside",
+                xaxis_index=[0, 1, 2],  # 确保K线和两个MACD图表共享同一组X轴索引
+                range_start=0,
+                range_end=100,
+            ),
+            opts.DataZoomOpts(
+                is_show=True,
+                type_="slider",
+                xaxis_index=[0, 1, 2],
+                range_start=0,
+                range_end=100,
+            ),
+        ]
+    )
+
+    # 第一个MACD图表
+    macd_chart_1 = create_MACD_Chart(df, result)
+    macd_chart_1.set_global_opts(
+        datazoom_opts=[
+            opts.DataZoomOpts(
+                is_show=True,
+                type_="inside",
+                xaxis_index=[0, 1, 2],  # 确保和K线图、第二个MACD图表共享同一组X轴索引
+                range_start=0,
+                range_end=100,
+            ),
+            opts.DataZoomOpts(
+                is_show=True,
+                type_="slider",
+                xaxis_index=[0, 1, 2],
+                range_start=0,
+                range_end=100,
+            ),
+        ]
+    )
+
+    # 第二个MACD图表
+    mfi_chart = create_MFI_Chart(df, result)
+    mfi_chart.set_global_opts(
+        datazoom_opts=[
+            opts.DataZoomOpts(
+                is_show=True,
+                type_="inside",
+                xaxis_index=[0, 1, 2],  # 确保和K线图、MACD1共享同一组X轴索引
+                range_start=0,
+                range_end=100,
+            ),
+            opts.DataZoomOpts(
+                is_show=True,
+                type_="slider",
+                xaxis_index=[0, 1, 2],
+                range_start=0,
+                range_end=100,
+            ),
+        ]
+    )
+
+    # 添加图表到Grid布局中
     grid_chart.add(
-        create_KLine_Chart(df,result),
-        grid_opts=opts.GridOpts(pos_left="5%", pos_right="5%", height="300px"),
+        kline_chart,
+        grid_opts=opts.GridOpts(pos_left="5%", pos_right="10%", height="300px", width="90%"),
     )
 
     grid_chart.add(
-        create_MACD_Chart(df,result),
-        grid_opts=opts.GridOpts(pos_left="5%", pos_right="5%", pos_top="450px", height="150px"),
+        macd_chart_1,
+        grid_opts=opts.GridOpts(pos_left="5%", pos_right="10%", pos_top="450px", height="150px", width="90%"),
     )
 
     grid_chart.add(
-        create_MFI_Chart(df,result),
-        grid_opts=opts.GridOpts(pos_left="5%", pos_right="5%", pos_top="630px", height="150px"),
+        mfi_chart,
+        grid_opts=opts.GridOpts(pos_left="5%", pos_right="10%", pos_top="630px", height="150px", width="90%"),
     )
-    
-#    grid_chart.add(
-#        create_strategy_bar(df,result),
-#        grid_opts=opts.GridOpts(pos_left="5%", pos_right="5%", pos_top="800px", height="200px"),
-#    )
 
-    page = Page(layout=Page.DraggablePageLayout)
-    page.add(
-        grid_chart,
-        create_strategy_bar(df,result),
+    # 渲染页面
+    page1 = Page(layout=Page.SimplePageLayout)
+    page1.add(grid_chart)
+    page1.add(
+        create_strategy_bar(df, result),
         create_strategy_info(result),
         create_strategy_orders(result),
-        create_strategy_positions(result),
-        #create_strategy_portfolio(result),
-        create_strategy_trades(result),
     )
-    
-    page.render("K线图.html")
+    page1.add(create_strategy_positions(result),
+        create_strategy_trades(result),)
+    page1.render("K线图.html")
