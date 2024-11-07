@@ -75,5 +75,4 @@ def create_strategy():
     print(result.trades)
 
     create_strategy_charts(data_with_indicator,result)
-
     return result
