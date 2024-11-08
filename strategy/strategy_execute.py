@@ -12,14 +12,14 @@ from indicator.indicator_talib import calculate_indicator
 def create_strategy():
     
     # 定义全局参数 "stock_code"（股票代码）
-    pb.param(name='stock_code', value='002731') 
+    pb.param(name='stock_code', value='002625') 
     # 定义全局参数 "start_date" 开始日期
     pb.param(name='start_date', value='20180201') 
     # 定义全局参数 "end_date" 结束日期
-    pb.param(name='end_date', value='20241101') 
+    pb.param(name='end_date', value='20181001') 
     
     # 定义全局参数 "percent"（持仓百分比） 1代表100% 0.25代表25%
-    pb.param(name='percent', value=0.25)
+    pb.param(name='percent', value=1)
     # 定义全局参数 "stop_loss_pct"（止损百分比）
     pb.param(name='stop_loss_pct', value=10)
     # 定义全局参数 "stop_profit_pct"（止盈百分比）
@@ -37,7 +37,8 @@ def create_strategy():
     
     #计算MACD参数
     data_with_indicator = calculate_indicator(df)
-    
+    print("打印技术指标")
+    print(data_with_indicator)
     #macd_data = calculate_macd(df)
     #存入数据库
     #save_data_macd(macd_data)
