@@ -10,9 +10,12 @@ from pybroker.ext.data import AKShare
 
 def calculate_indicator(df) :
     df['macd'], df['macdsignal'], df['macdhist'] = talib.MACD(df.close, fastperiod=12, slowperiod=26, signalperiod=9)
-
     df['MFI'] = talib.MFI(df.high, df.low, df.close, df.volume, timeperiod=14) 
-    
+    # 计算 250 日均线
+    # df['SMA250'] = talib.SMA(df.close, timeperiod=250)
+    df['sma_short'] = talib.SMA(df['close'], timeperiod=10)
+    df['sma_long'] = talib.SMA(df['close'], timeperiod=30)
+    df['sma250'] = talib.SMA(df['close'], timeperiod=250)
     return df
     
 '''

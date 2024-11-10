@@ -11,7 +11,7 @@ from pyecharts.globals import ThemeType
 import pandas as pd
 
 
-def create_marker_value_chart(data, result) -> Line:
+def create_marker_value_chart( result) -> Line:
     line = Line(init_opts=opts.InitOpts(width="100%", height="400px"))
 
     # 获取日期和市值数据
@@ -75,7 +75,7 @@ def create_KLine_Chart(data, result) -> Kline:
     xdf = data[["date"]]
     xdf.index = pd.to_datetime(xdf.date)
 
-    ydf = data[["open", "close", "high", "low"]]
+    ydf = data[["open", "close","low", "high"]]
 
     all_points = result.orders[["type", "date", "fill_price"]]
 
@@ -264,23 +264,56 @@ def create_MFI_Chart(data, result) -> Line:
     )
     return line
 
+def create_SMA_Chart(data, result) -> Line:
+    xdf = data[["date"]]
+    xdf.index = pd.to_datetime(xdf.date)
+    ydf_dif = data[["SMA250"]]
+
+    line = (
+        Line()
+        .add_xaxis(xdf.index.strftime("%Y%m%d").tolist())
+        .add_yaxis("SMA250", y_axis=ydf_dif.values.tolist())
+        .set_series_opts(label_opts=opts.LabelOpts(is_show=False))
+    ).set_global_opts(
+        tooltip_opts=opts.TooltipOpts(
+            trigger="axis",
+            axis_pointer_type="cross",  # 设置十字线
+            background_color="rgba(245, 245, 245, 0.8)",
+            border_width=1,
+            border_color="#ccc",
+            textstyle_opts=opts.TextStyleOpts(color="#000"),
+        ),
+        datazoom_opts=[
+            opts.DataZoomOpts(
+                is_show=True,
+                type_="inside",
+                xaxis_index=[0, 1, 2, 3],  # 确保和K线图、MACD1共享同一组X轴索引
+                range_start=0,
+                range_end=100,
+            ),
+            opts.DataZoomOpts(
+                is_show=True,
+                type_="slider",
+                xaxis_index=[0, 1, 2, 3],  # 确保和K线图、MACD1共享同一组X轴索引
+                range_start=0,
+                range_end=100,
+            ),
+        ],
+    )
+    return line
+
 
 def create_strategy_bar(result) -> Grid:
-    # xdf = data[["date"]]
-    # xdf.index = pd.to_datetime(xdf.date)
-
     #    all_points = result.portfolio[['date','cash','equity','pnl']]
     #    all_points['date'] = pd.to_datetime(all_points['date'], unit='s').dt.strftime('%Y%m%d')
     #    all_points = dict(zip(all_points['date'], all_points['cash']))
-    ydf=pd.DataFrame()
-    ydf["pnl"] = result.portfolio[["cash"]].values-result.portfolio[["equity"]].values
-
+    ydf = result.portfolio[["pnl"]]
     #    y=[88, 102, 47, 107, 130, 31, 58]
 
     buy_points = {"周二": 0, "周三": 100}
 
     bar = Bar(
-        init_opts=opts.InitOpts(theme=ThemeType.DARK, width="100%", height="300px")
+        init_opts=opts.InitOpts(theme=ThemeType.DARK, width="100%",height="300px")
     )
     bar.add_xaxis(result.portfolio.index.strftime("%Y%m%d").tolist())
 
@@ -354,19 +387,24 @@ def printResult(df: pd.DataFrame):
     # 假设 result.metrics_df 已经存在，并且包含您的数据
     # 中文名称映射字典
     zh_names = {
+        "total_return_pct": "总回报率",
+        "benchmark_return": "股票基准收益率",
+        "max_drawdown_pct": "最大回撤（百分比）",
+        "win_rate": "胜率",
+        "largest_win_pct": "最大盈利交易（百分比）",
+        "largest_loss_pct": "最大亏损交易（百分比）",
         "trade_count": "交易次数",
+        "sharpe": "夏普比率",
+        "profit_factor": "盈亏比",
         "initial_market_value": "初始市值",
         "end_market_value": "期末市值",
         "total_pnl": "总盈亏",
         "unrealized_pnl": "未实现盈亏",
-        "total_return_pct": "总回报率",
         "annual_return_pct": "年化总回报率",
         "total_profit": "总盈利",
         "total_loss": "总亏损",
         "total_fees": "总手续费",
         "max_drawdown": "最大回撤（现金）",
-        "max_drawdown_pct": "最大回撤（百分比）",
-        "win_rate": "胜率",
         "loss_rate": "亏损率",
         "winning_trades": "盈利交易次数",
         "losing_trades": "亏损交易次数",
@@ -380,17 +418,13 @@ def printResult(df: pd.DataFrame):
         "avg_loss_pct": "每笔交易平均亏损率",
         "avg_losing_trade_bars": "亏损交易的平均K线数",
         "largest_win": "最大盈利交易",
-        "largest_win_pct": "最大盈利交易（百分比）",
         "largest_win_bars": "最大盈利交易的K线数",
         "largest_loss": "最大亏损交易",
-        "largest_loss_pct": "最大亏损交易（百分比）",
         "largest_loss_bars": "最大亏损交易的K线数",
         "max_wins": "最大连续盈利交易次数",
         "max_losses": "最大连续亏损交易次数",
-        "sharpe": "夏普比率",
         "sortino": "索提诺比率",
         "calmar": "卡尔玛比率",
-        "profit_factor": "盈亏比",
         "ulcer_index": "溃疡指数",
         "upi": "溃疡表现指数",
         "equity_r2": "净值R²",
@@ -398,28 +432,22 @@ def printResult(df: pd.DataFrame):
         "annual_std_error": "年化标准误差",
         "annual_volatility_pct": "年化波动率（百分比）",
     }
+    # 过滤并重排 DataFrame 中的行顺序
+    df = df[df['name'].isin(zh_names.keys())]  # 只保留在 zh_names 中定义的行
+    df['zh_name'] = df['name'].map(zh_names)  # 添加中文名称列
+    df = df.set_index('name').reindex(zh_names.keys()).reset_index()  # 按 zh_names 键顺序重新排序
 
-    # 在 DataFrame 中新增“zh_name”列
-    df["zh_name"] = df["name"].map(zh_names)
     # 调整列顺序，使 'zh_name' 列紧挨着 'name' 列
-    df = df[
-        ["zh_name", "name"]
-        + [col for col in df.columns if col not in ["name", "zh_name"]]
-    ]
-    new_order = [i for i in range(39)]  # 默认顺序
-    # 手动修改顺序，例如将第1行和第39行对调
-    new_order = [5, 10, 11, 25, 28, 32, 34] + [
-        i for i in new_order if i not in [5, 10, 11, 25, 28, 32, 34]
-    ]
-    df_reordered = df.iloc[new_order]
-    return df_reordered
+    df = df[['zh_name', 'name'] + [col for col in df.columns if col not in ['name', 'zh_name']]]
+    return df
 
-
-def create_strategy_info(result) -> Table:
+def create_strategy_info(result,benchmark_return) -> Table:
     table = Table()
-    metrics = printResult(result.metrics_df).round(2)
+    df=result.metrics_df
+    new_row = pd.DataFrame({"name": ["benchmark_return"], "value": [benchmark_return]})
+    df = pd.concat([result.metrics_df, new_row], ignore_index=True)
+    metrics = printResult(df).round(2)
     # metrics = result.metrics_df
-
     headers = metrics.columns.tolist()
     rows = [list(row) for row in metrics.values]
     # print(headers)
@@ -448,7 +476,7 @@ def create_strategy_orders(result) -> Table:
 def create_strategy_positions(result) -> Table:
     table = Table()
     metrics = result.positions
-    metrics["时间"]=metrics.index.get_level_values('date')
+    metrics["时间"] = metrics.index.get_level_values("date")
     metrics = metrics[["时间"] + [col for col in metrics.columns if col != "时间"]]
     headers = metrics.columns.tolist()
     rows = [list(row) for row in metrics.values]
@@ -464,7 +492,8 @@ def create_strategy_portfolio(result) -> Table:
     table = Table()
 
     metrics = result.portfolio
-
+    metrics["时间"] = metrics.index.get_level_values("date")
+    metrics = metrics[["时间"] + [col for col in metrics.columns if col != "时间"]]
     headers = metrics.columns.tolist()
     rows = [list(row) for row in metrics.values]
     # print(headers)
@@ -491,7 +520,7 @@ def create_strategy_trades(result) -> Table:
 
 
 # 图表聚合
-def create_strategy_charts(df, result):
+def create_strategy_charts(df, result,benchmark_return):
     grid_chart = Grid(
         init_opts=opts.InitOpts(
             width="100%",
@@ -500,13 +529,15 @@ def create_strategy_charts(df, result):
         )
     )
     # 添加K线图表
-    marker_chart = create_marker_value_chart(df, result)
+    marker_chart = create_marker_value_chart( result)
     # 添加K线图表
     kline_chart = create_KLine_Chart(df, result)
     # 第一个MACD图表
     macd_chart_1 = create_MACD_Chart(df, result)
-    # 第二个MACD图表
+    # 第二个MFI图表
     mfi_chart = create_MFI_Chart(df, result)
+    # 第三个SMA图表
+    # mfi_chart = create_SMA_Chart(df, result)
     # 添加图表到Grid布局中
     grid_chart.add(
         marker_chart,
@@ -532,14 +563,47 @@ def create_strategy_charts(df, result):
     )
 
     # 渲染页面
-    page1 = Page(layout=Page.SimplePageLayout)
-    page1.add(grid_chart).add(
-        create_strategy_bar( result),
-        create_strategy_info(result),
-        create_strategy_orders(result),
-    ).add(
-        create_strategy_positions(result),
+    page1 = Page(layout=opts.PageLayoutOpts(
+        justify_content="flex-start", display="flex", flex_wrap="wrap"
+    ))
+    page1.add(
+        grid_chart,
+        create_strategy_bar(result),
+        create_strategy_info(result,benchmark_return),
         create_strategy_trades(result),
-    ).render(
-        "K线图.html"
+        create_strategy_orders(result),
+        create_strategy_portfolio(result),
+        create_strategy_positions(result),
+    ).render("K线图.html")
+
+# 图表聚合
+def create_strategy_result_charts(result):
+    grid_chart = Grid(
+        init_opts=opts.InitOpts(
+            width="100%",
+            height="400px",
+            animation_opts=opts.AnimationOpts(animation=False),
+        )
     )
+    # 添加K线图表
+    marker_chart = create_marker_value_chart( result)
+    # 添加图表到Grid布局中
+    grid_chart.add(
+        marker_chart,
+        grid_opts=opts.GridOpts(
+            pos_left="5%", pos_right="10%", height="300px", width="90%"
+        ),
+    )
+    # 渲染页面
+    page1 = Page(layout=opts.PageLayoutOpts(
+        justify_content="flex-start", display="flex", flex_wrap="wrap"
+    ))
+    page1.add(
+        grid_chart,
+        create_strategy_bar(result),
+        create_strategy_info(result,0),
+        create_strategy_trades(result),
+        create_strategy_orders(result),
+        create_strategy_portfolio(result),
+        create_strategy_positions(result),
+    ).render("result_K线图.html")
