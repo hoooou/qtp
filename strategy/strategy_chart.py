@@ -533,9 +533,9 @@ def create_strategy_charts(df, result,benchmark_return):
     # 添加K线图表
     kline_chart = create_KLine_Chart(df, result)
     # 第一个MACD图表
-    macd_chart_1 = create_MACD_Chart(df, result)
-    # 第二个MFI图表
-    mfi_chart = create_MFI_Chart(df, result)
+    # macd_chart_1 = create_MACD_Chart(df, result)
+    # # 第二个MFI图表
+    # mfi_chart = create_MFI_Chart(df, result)
     # 第三个SMA图表
     # mfi_chart = create_SMA_Chart(df, result)
     # 添加图表到Grid布局中
@@ -550,17 +550,18 @@ def create_strategy_charts(df, result,benchmark_return):
         grid_opts=opts.GridOpts(
             pos_left="5%", pos_right="10%", pos_top="450px", height="300px", width="90%"
         ),
-    ).add(
-        macd_chart_1,
-        grid_opts=opts.GridOpts(
-            pos_left="5%", pos_right="10%", pos_top="780px", height="150px", width="90%"
-        ),
-    ).add(
-        mfi_chart,
-        grid_opts=opts.GridOpts(
-            pos_left="5%", pos_right="10%", pos_top="950px", height="150px", width="90%"
-        ),
     )
+    # .add(
+    #     macd_chart_1,
+    #     grid_opts=opts.GridOpts(
+    #         pos_left="5%", pos_right="10%", pos_top="780px", height="150px", width="90%"
+    #     ),
+    # ).add(
+    #     mfi_chart,
+    #     grid_opts=opts.GridOpts(
+    #         pos_left="5%", pos_right="10%", pos_top="950px", height="150px", width="90%"
+    #     ),
+    # )
 
     # 渲染页面
     page1 = Page(layout=opts.PageLayoutOpts(
